@@ -7,11 +7,8 @@ const { ccclass, property } = _decorator;
 @ccclass
 export default class CarController extends Component {
 
-    @property(Vec2)
-    speed: Vec2 = v2(0, 200); // 初始速度，根据需要调整
-
     // 车道的 x 坐标值
-    private lanePositions: number[] = [-200, 0, 200];
+    private lanePositions: number[] = [-250, 0, 250];
 
     // 当前车道索引
     private currentLaneIndex: number = 1;
@@ -64,7 +61,6 @@ export default class CarController extends Component {
         tween(this.node.position)
             .to(duration, new Vec3(targetX, this.node.position.y, 0), {                        // to 接口表示节点的绝对值
                 onUpdate: (target: Vec3, ratio: number) => {                        // 实现 ITweenOption 的 onUpdate 回调，接受当前缓动的进度
-                    console.log("targetX->", target.x)
                     this.node.position = target;                                 // 将缓动系统计算出的结果赋予 node 的位置        
                 }
             })
