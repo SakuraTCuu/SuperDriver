@@ -38,14 +38,14 @@ export default class MazeManager extends Component {
     updateGame() {
         this.gameTime--;
         if (this.gameTime <= 0) {
-            this.gameOver(false); // 游戏结束，未到达正确终点
+            // this.gameOver(false); // 游戏结束，未到达正确终点
         }
     }
 
     showArrowAt(position: Vec2) {
         const arrow = instantiate(this.arrowPrefab);
-        arrow.position = position;
-        this.mazeManager.addChild(arrow);
+        // arrow.position = position;
+        // this.mazeManager.addChild(arrow);
         this.scheduleOnce(() => {
             arrow.destroy();
         }, this.signDuration);
