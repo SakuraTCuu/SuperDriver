@@ -6,9 +6,6 @@ const { ccclass, property } = _decorator;
 @ccclass
 export default class MazeManager extends Component {
 
-    @property(Node)
-    mazeManager: Node = null; // 迷宫管理节点
-
     @property(Prefab)
     arrowPrefab: Prefab = null; // 路牌预制体
 
