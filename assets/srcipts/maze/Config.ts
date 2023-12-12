@@ -21,25 +21,24 @@
 // `;
 
 // 难度1: 一个直角转弯
-const mazeLevel1: string = `
-0,0,0,0
+const mazeLevel1: string =
+    `0,0,0,0
 0,1,1,0
 0,1,0,0
-0,0,0,0
-`;
+0,0,0,0`;
 
 // 难度2: 两个直角转弯
-const mazeLevel2: string = `
-0,0,0,0,0
+const mazeLevel2: string =
+    `1,1,0,0,0
 0,1,0,1,0
 0,1,1,1,0
 0,0,0,1,0
-0,0,0,0,0
+0,0,0,1,1
 `;
 
 // 难度3: 三个直角转弯，包括一个T形路口
-const mazeLevel3: string = `
-0,0,0,0,0,0
+const mazeLevel3: string =
+    `0,0,0,0,0,0
 0,1,0,0,1,0
 0,1,1,1,1,0
 0,0,0,1,0,0
@@ -48,8 +47,8 @@ const mazeLevel3: string = `
 `;
 
 // 难度4: 四个直角转弯，包括两个T形路口
-const mazeLevel4: string = `
-0,0,0,0,0,0,0
+const mazeLevel4: string =
+    `0,0,0,0,0,0,0
 0,1,0,0,1,0,0
 0,1,1,1,1,1,0
 0,0,0,1,0,0,0
@@ -59,15 +58,15 @@ const mazeLevel4: string = `
 `;
 
 // 难度5: 五个直角转弯，包括三个T形路口
-const mazeLevel5: string = `
-0,0,0,0,0,0,0,0,0
+const mazeLevel5: string =
+    `0,0,0,0,0,0,0,0,0
 0,1,0,0,1,0,0,1,0
 0,1,1,1,1,1,1,1,0
 0,0,0,1,0,0,0,0,0
 0,0,0,1,0,0,0,0,0
 0,0,0,1,1,1,0,0,0
 0,0,0,0,0,1,0,0,0
-0,0,0,0,0,0,0,0,0
+0,0,0,1,1,1,0,0,0
 `;
 
 export default class Config {
@@ -79,6 +78,35 @@ export default class Config {
             time: 60, //倒计时
             start: [], //起始点
             end: [], //结束点
-        }
+        },
+        {
+            level: 2, //难度
+            map: mazeLevel2, //地图
+            time: 60, //倒计时
+            start: [4, 4], //起始点
+            end: [0, 0], //结束点
+            path: [[3, 4], [3, 3], [3, 2], [2, 2], [1, 2], [1, 1], [1, 0], [0, 0]]
+        },
+        {
+            level: 3, //难度
+            map: mazeLevel3, //地图
+            time: 60, //倒计时
+            start: [], //起始点
+            end: [], //结束点
+        },
+        {
+            level: 4, //难度
+            map: mazeLevel4, //地图
+            time: 60, //倒计时
+            start: [], //起始点
+            end: [], //结束点
+        },
+        {
+            level: 5, //难度
+            map: mazeLevel5, //地图
+            time: 60, //倒计时
+            start: [], //起始点
+            end: [], //结束点
+        },
     ]
 }

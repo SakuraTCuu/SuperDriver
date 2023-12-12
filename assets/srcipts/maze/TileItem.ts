@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, Vec2, instantiate, Sprite, SpriteFrame } from "cc";
+import { _decorator, Component, Prefab, Vec2, instantiate, Sprite, SpriteFrame, Color } from "cc";
 import { Tile } from "./MazeMapManager";
 
 const { ccclass, property } = _decorator;
@@ -6,11 +6,11 @@ const { ccclass, property } = _decorator;
 @ccclass
 export default class TileItem extends Component {
 
-    @property(SpriteFrame)
-    spfRoad: SpriteFrame = null;
+    // @property(SpriteFrame)
+    // spfRoad: SpriteFrame = null;
 
-    @property(SpriteFrame)
-    spfWall: SpriteFrame = null;
+    // @property(SpriteFrame)
+    // spfWall: SpriteFrame = null;
 
     @property(Sprite)
     itemSprite: Sprite = null; // 迷宫管理节点
@@ -20,6 +20,6 @@ export default class TileItem extends Component {
     }
 
     init(data: Tile) {
-        this.itemSprite.spriteFrame = data.isRoad ? this.spfRoad : this.spfWall;
+        this.itemSprite.color = data.isRoad ? Color.GRAY : Color.YELLOW;
     }
 }
