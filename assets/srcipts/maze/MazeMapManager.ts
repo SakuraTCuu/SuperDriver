@@ -1,6 +1,7 @@
-import { _decorator, Component, instantiate, Prefab, TextAsset, Node, v3 } from "cc";
+import { _decorator, Component, instantiate, Prefab, TextAsset, Node, v3, tween, Vec3, Vec2, v2, UITransform } from "cc";
 import Config from "./Config";
 import TileItem from "./TileItem";
+import { FogOfWar } from "./FogForWar";
 
 // MazeMapManager.ts
 const { ccclass, property } = _decorator;
@@ -18,7 +19,6 @@ export interface Tile {
 @ccclass
 export default class MazeMapManager extends Component {
 
-    // 在这里实现迷宫生成逻辑，可以使用 TiledMap 或其他方式
     @property(Prefab)
     itemPrefab: Prefab = null;
 
@@ -31,6 +31,9 @@ export default class MazeMapManager extends Component {
     @property(Node)
     endNode: Node = null;
 
+    @property(FogOfWar)
+    fogManager: FogOfWar = null;
+
     private level: number = 1;
     private tileWidth: number = 100;
     private tileHeight: number = 100;
@@ -40,10 +43,13 @@ export default class MazeMapManager extends Component {
     //二维数组
     private mapData: Array<Array<Tile>> = [];
 
+    private historyPath: Array<Vec2> = [];
+
     start(): void {
         //初始化地图
         this.initMap();
         this.initView();
+
     }
 
     initMap() {
@@ -62,7 +68,7 @@ export default class MazeMapManager extends Component {
                 let flag = rowList[j]
                 let item = instantiate(this.itemPrefab);
                 //初始化item
-                console.log("x=" + j + ",y=" + i, v3(j * this.tileWidth + this.tileWidth / 2, - i * this.tileHeight - this.tileHeight / 2))
+                // console.log("x=" + j + ",y=" + i, v3(j * this.tileWidth + this.tileWidth / 2, - i * this.tileHeight - this.tileHeight / 2))
                 item.setPosition(v3(j * this.tileWidth + this.tileWidth / 2, - i * this.tileHeight - this.tileHeight / 2))
                 this.contentNode.addChild(item);
                 let itemCtrl = item.getComponent(TileItem)
@@ -83,21 +89,50 @@ export default class MazeMapManager extends Component {
 
         let x = data.start[0]
         let y = data.start[1]
-        console.log(x, y)
-        console.log("x=" + x + ",y=" + y, v3(x * this.tileWidth + this.tileWidth / 2, - y * this.tileHeight - this.tileHeight / 2))
+        // console.log(x, y)
+        // console.log("x=" + x + ",y=" + y, v3(x * this.tileWidth + this.tileWidth / 2, - y * this.tileHeight - this.tileHeight / 2))
         this.heroNode.setPosition(x * this.tileWidth + this.tileWidth / 2, - y * this.tileHeight - this.tileHeight / 2);
-        x = data.end[0]
-        y = data.end[1]
-        this.endNode.setPosition(x * this.tileWidth + this.tileWidth / 2, - y * this.tileHeight - this.tileHeight / 2);
 
         this.endNode.setSiblingIndex(998)
         this.heroNode.setSiblingIndex(999)
         this.targetPath = data.path;
-        
+
+        this.scheduleOnce(() => {
+            let uiTrans = this.contentNode.getComponent(UITransform)
+            let worldPos = uiTrans.convertToWorldSpaceAR( this.heroNode.getPosition())
+            this.historyPath.push(v2(x, y))
+            this.fogManager.updatePath(worldPos)
+        })
+
+        x = data.end[0]
+        y = data.end[1]
+        this.endNode.setPosition(x * this.tileWidth + this.tileWidth / 2, - y * this.tileHeight - this.tileHeight / 2);
     }
 
     initView() {
+        let len = this.targetPath.length - 1;
+        let idx = 0;
+        this.schedule(() => {
+            let pos = this.targetPath[idx]
+            let x = pos[0] * this.tileWidth + this.tileWidth / 2
+            let y = -  pos[1] * this.tileHeight - this.tileHeight / 2
 
+            console.log("updatePat1h", pos)
+
+            let uiTrans = this.contentNode.getComponent(UITransform)
+            let worldPos = uiTrans.convertToWorldSpaceAR(v3(x, y))
+            this.historyPath.push(v2(x, y))
+            this.fogManager.updatePath(worldPos)
+
+            // this.heroNode.setPosition(x * this.tileWidth + this.tileWidth / 2, - y * this.tileHeight - this.tileHeight / 2);
+            tween(this.heroNode.position).to(0.5, new Vec3(x, y, 0), {
+                onUpdate: (target: Vec3, ratio: number) => {
+                    this.heroNode.position = target;
+                }
+            }).start()
+            idx++;
+        }, 0.5, len)
     }
+ 
 }
 

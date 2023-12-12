@@ -1,11 +1,8 @@
-import { _decorator, Component, Node, Texture2D, Sprite, Vec3, Mask, Graphics, EventTouch, UITransform, v3, Vec2, Color } from 'cc';
+import { _decorator, Component, Node, Texture2D, Sprite, Vec3, Mask, Graphics, EventTouch, UITransform, v3, Vec2, Color, tween } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('FogOfWar')
 export class FogOfWar extends Component {
-
-    @property(Node)
-    player: Node = null;
 
     @property(Mask)
     Mask: Mask = null;
@@ -13,28 +10,43 @@ export class FogOfWar extends Component {
     @property(Node)
     ContentNode: Node = null;
 
-    @property(Sprite)
-    fogSprite: Sprite = null;
+    @property(Node)
+    CloudNode: Node = null;
 
     private graphics: Graphics = null;
     uiTrans: UITransform = null
 
+    private historyPath: Array<Vec3> = [];
+
     onLoad() {
+
     }
 
     protected start(): void {
         // @ts-ignore
         this.graphics = this.Mask.node.getComponent(Graphics);
+        this.uiTrans = this.Mask.node.getComponent(UITransform)
+
         // this.Mask.inverted = true;
 
-        this.graphics.lineWidth = 20;
+        this.graphics.lineWidth = 100;
         this.graphics.strokeColor = Color.GRAY;
+        this.node.on(Node.EventType.TOUCH_START, this.onTouchStart, this)
+        this.node.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
+        this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this)
 
-        this.uiTrans = this.Mask.node.parent.getComponent(UITransform)
+    }
 
-        this.ContentNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this)
-        this.ContentNode.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
-        this.ContentNode.on(Node.EventType.TOUCH_END, this.onTouchEnd, this)
+    protected update(dt: number): void {
+        for (let i = 0; i < this.CloudNode.children.length; i++) {
+            let node = this.CloudNode.children[i]
+            let pos = node.getPosition()
+            pos.x += dt * 100;
+            if (pos.x > 720) {
+                pos.x = -720;
+            }
+            node.setPosition(pos)
+        }
     }
 
     prePos: Vec3
@@ -42,10 +54,6 @@ export class FogOfWar extends Component {
         let pos = event.getUILocation()
         let localPos = this.uiTrans.convertToNodeSpaceAR(v3(pos.x, pos.y))
         this.prePos = localPos;
-        // this.graphics.moveTo(localPos.x, localPos.y)
-        // this.graphics.lineTo(localPos.x, localPos.y)
-
-        // this.graphics.stroke()
     }
 
     onTouchMove(event: EventTouch) {
@@ -53,11 +61,9 @@ export class FogOfWar extends Component {
         let localPos = this.uiTrans.convertToNodeSpaceAR(v3(pos.x, pos.y))
 
         this.graphics.moveTo(this.prePos.x, this.prePos.y)
-        // this.graphics.moveTo(localPos.x, localPos.y)
         this.graphics.lineTo(localPos.x, localPos.y)
 
         this.graphics.stroke()
-
         this.prePos = localPos;
     }
 
@@ -71,5 +77,19 @@ export class FogOfWar extends Component {
         this.graphics.stroke()
     }
 
+    public updatePath(pos: Vec3) {
+        console.log("updatePath", pos)
+        this.uiTrans = this.Mask.node.getComponent(UITransform)
+        let localPos = this.uiTrans.convertToNodeSpaceAR(v3(pos.x, pos.y))
+        this.historyPath.push(localPos)
+        if (!this.prePos) {
+            this.prePos = localPos;
+        }
+
+        this.graphics.moveTo(this.prePos.x, this.prePos.y)
+        this.graphics.lineTo(localPos.x, localPos.y)
+        this.graphics.stroke()
+        this.prePos = localPos;
+    }
 
 }

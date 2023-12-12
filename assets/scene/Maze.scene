@@ -3731,15 +3731,14 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "player": null,
     "Mask": {
       "__id__": 99
     },
     "ContentNode": {
       "__id__": 101
     },
-    "fogSprite": {
-      "__id__": 21
+    "CloudNode": {
+      "__id__": 60
     },
     "_id": "f0JkYyaDhE6qmHA+2IfgoB"
   },
@@ -3910,6 +3909,9 @@
     },
     "endNode": {
       "__id__": 10
+    },
+    "fogManager": {
+      "__id__": 100
     },
     "_id": "076ISz6YFErZVLR/OAs8z0"
   },
