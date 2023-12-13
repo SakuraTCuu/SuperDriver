@@ -1595,7 +1595,7 @@
     "asset": null,
     "fileId": "16ea6d21-b4bb-421d-b1c9-4c16beadfb9e",
     "instance": null,
-    "targetOverrides": null
+    "targetOverrides": []
   },
   {
     "__type__": "cc.SceneGlobals",
