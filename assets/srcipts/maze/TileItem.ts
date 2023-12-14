@@ -6,12 +6,6 @@ const { ccclass, property } = _decorator;
 @ccclass
 export default class TileItem extends Component {
 
-    // @property(SpriteFrame)
-    // spfRoad: SpriteFrame = null;
-
-    // @property(SpriteFrame)
-    // spfWall: SpriteFrame = null;
-
     @property(Sprite)
     itemSprite: Sprite = null; // 迷宫管理节点
 

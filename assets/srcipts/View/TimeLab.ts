@@ -3,7 +3,7 @@ import { Component, Label, _decorator } from "cc";
 const { ccclass, property } = _decorator;
 
 @ccclass
-export default class TimeUtils extends Component {
+export default class TimeLab extends Component {
 
     @property(Label)
     TimeLabel: Label = null;

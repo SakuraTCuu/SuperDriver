@@ -37,8 +37,6 @@ export class Dialog extends Component {
         this.MaskNode.on(NodeEventType.TOUCH_END, this.onTouchClose, this);
 
         this.confirmLab = this.ConfirmNode.getChildByName("Label").getComponent(Label);
-
-        this.init({ desc: "thi2222s", onceBtn: true }, () => { console.log("confirm") }, () => { console.log("cancel") })
     }
 
     public init(info: DialogInfo, confirmCb: Function, cancelCb: Function) {
@@ -73,7 +71,7 @@ export class Dialog extends Component {
         }
         this.time -= dt;
         if (this.time <= 0) {
-            this.closeView()
+            this.onTouchConfirm()
             return;
         }
         this.updateTime();
@@ -87,13 +85,13 @@ export class Dialog extends Component {
     }
 
     onTouchConfirm() {
-        this.confirmCallback && this.confirmCallback();
         this.closeView();
+        this.confirmCallback && this.confirmCallback();
     }
 
     onTouchCancel() {
-        this.cancelCallback && this.cancelCallback();
         this.closeView();
+        this.cancelCallback && this.cancelCallback();
     }
 
     onTouchClose() {
@@ -103,6 +101,7 @@ export class Dialog extends Component {
     }
 
     closeView() {
+        console.log("closeView")
         this.node.active = false;
         this.node.destroy()
     }
