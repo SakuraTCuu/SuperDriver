@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, NodeEventType, UITransform, v3 } from 'cc';
+import { _decorator, Component, Label, Node, NodeEventType, tween, UITransform, v3, Vec3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 export interface DialogInfo {
@@ -37,6 +37,24 @@ export class Dialog extends Component {
         this.MaskNode.on(NodeEventType.TOUCH_END, this.onTouchClose, this);
 
         this.confirmLab = this.ConfirmNode.getChildByName("Label").getComponent(Label);
+    }
+
+    onEnable(): void {
+        this.MaskNode.active = false;
+        let pos = this.node.getPosition()
+        pos.y += 1280;
+        this.node.setPosition(pos)
+
+        tween(this.node.position)
+            .to(0.5, v3(0, 0, 0), {
+                onUpdate: (target: Vec3, ratio: number) => {
+                    this.node.position = target;
+                }
+            }).call(() => {
+                this.MaskNode.active = true;
+            })
+            .start();
+        // tween(this.node.position).to(0.2,)
     }
 
     public init(info: DialogInfo, confirmCb: Function, cancelCb: Function) {

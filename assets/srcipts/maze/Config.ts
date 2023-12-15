@@ -79,6 +79,7 @@ export default class Config {
             end: [], //结束点
         },
         {
+            tipCount: 1,
             level: 2, //难度
             map: mazeLevel2, //地图
             time: 60, //倒计时
