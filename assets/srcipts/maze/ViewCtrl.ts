@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, Node, instantiate, Sprite, SpriteFrame, Color, UITransform, EventKeyboard, KeyCode, NodeEventType, Input, input, Label, Vec2, Vec3, v3 } from "cc";
+import { _decorator, Component, Prefab, Node, instantiate, Sprite, SpriteFrame, Color, UITransform, EventKeyboard, KeyCode, NodeEventType, Input, input, Label, Vec2, Vec3, v3, isValid } from "cc";
 import MazeMapManager, { Tile } from "./MazeMapManager";
 import TimeLab from "../View/TimeLab";
 import { ArrowCtrl } from "../test/ArrowCtrl";
@@ -44,12 +44,17 @@ export default class ViewCtrl extends Component {
     private isShowArrow: boolean = false;
     private configData: any = { time: 3 }
 
+    private gameOverPanel: Node = null;
+
     onLoad() {
         let handle = this.uiRoot.getChildByName("handle")
         this.leftBtn = handle.getChildByName("left")
         this.rightBtn = handle.getChildByName("right")
         this.upBtn = handle.getChildByName("up")
         this.downBtn = handle.getChildByName("down")
+
+        this.gameOverPanel = this.uiRoot.getChildByName("gameOver")
+        this.gameOverPanel.active = false;
 
         input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
         input.on(Input.EventType.KEY_UP, this.onKeyUp, this);
@@ -63,6 +68,10 @@ export default class ViewCtrl extends Component {
     init(ref: MazeMapManager) {
         this.MazeManager = ref;
 
+        this.initTimeLab();
+    }
+
+    initTimeLab() {
         let info = this.MazeManager.getGameInfo()
         this.timeLab.initTime(info.time);
     }
@@ -89,11 +98,16 @@ export default class ViewCtrl extends Component {
         }, this)
 
         node.on(NodeEventType.TOUCH_END, () => {
-            this.isRunning = false;
+            this.stopRunning();
         }, this)
         node.on(NodeEventType.TOUCH_CANCEL, () => {
-            this.isRunning = false;
+            this.stopRunning();
         }, this)
+    }
+
+    stopRunning() {
+        this.isRunning = false;
+        this.stopHeroRun();
     }
 
     onKeyDown(e: EventKeyboard) {
@@ -129,6 +143,16 @@ export default class ViewCtrl extends Component {
         this.MazeManager.playHeroRun(direction);
     }
 
+    private stopHeroRun() {
+        this.MazeManager.stopHeroRun();
+    }
+
+    arrowNode: Node = null;
+    public hideArrow() {
+        if (this.arrowNode && isValid(this.arrowNode)) {
+            this.arrowNode.active = false
+        }
+    }
 
     /**展示箭头 */
     public showArrow(pos: Vec3, angle: number) {
@@ -138,6 +162,7 @@ export default class ViewCtrl extends Component {
         this.isShowArrow = true;
 
         let arrowItem = instantiate(this.arrowPrefab)
+        this.arrowNode = arrowItem
         let arrowItemCtrl = arrowItem.getComponent(ArrowItem)
 
         //TODO: 计算角度
@@ -150,14 +175,20 @@ export default class ViewCtrl extends Component {
 
         this.node.addChild(arrowItem)
         arrowItem.setWorldPosition(pos);
-
         return true;
     }
 
     public showConfirmPanel(info: DialogInfo, confirmCb: Function, cancelCb: Function) {
         let panel = instantiate(this.confirmPrefab)
+        this.node.addChild(panel)
         let dialog = panel.getComponent(Dialog)
         dialog.init(info, confirmCb, cancelCb)
-        this.node.addChild(panel)
+    }
+
+    /**
+     * 游戏结束界面
+     */
+    public showGameOverPanel() {
+        this.gameOverPanel.active = true;
     }
 }

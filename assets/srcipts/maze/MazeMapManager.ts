@@ -1,8 +1,9 @@
 import { _decorator, Component, instantiate, Prefab, TextAsset, Node, v3, tween, Vec3, Vec2, v2, UITransform, input, Input, view, EventKeyboard, KeyCode, Camera, game, Size, size } from "cc";
-import Config from "./Config";
+import Config, { ExamInfo } from "./Config";
 import TileItem from "./TileItem";
 import { FogOfWar } from "./FogForWar";
 import ViewCtrl, { DirectionType } from "./ViewCtrl";
+import Charactor from "../View/Charactor";
 
 // MazeMapManager.ts
 const { ccclass, property } = _decorator;
@@ -44,6 +45,9 @@ export default class MazeMapManager extends Component {
     @property(ViewCtrl)
     viewCtrl: ViewCtrl = null;
 
+    @property(Charactor)
+    player: Charactor = null;
+
     private level: number = 1;
 
     private tileWidth: number = 100;
@@ -77,6 +81,12 @@ export default class MazeMapManager extends Component {
     private isGameEnd: boolean = false;
     private uiTrans: UITransform = null;
 
+    private examInfo: ExamInfo = null;
+    private hasShowTipsCount: number = 0;
+    private hasRetryCount: number = 0;
+    private isInProtect = false; //设置保护期 3s后,保护期失效
+    private protectTime: number = 3;
+
     start(): void {
         this.uiTrans = this.contentNode.getComponent(UITransform);
         this.heroSize = this.heroNode.getComponent(UITransform).contentSize;
@@ -84,11 +94,24 @@ export default class MazeMapManager extends Component {
         //初始化地图
         this.initMap();
         this.initView();
-        this.viewCtrl.init(this)
+
+        this.hasRetryCount = this.examInfo.retryCount;
+    }
+
+    /**
+     * 展示引导
+     */
+    showGuide() {
+        let idx = 0;
+        this.schedule(() => {
+            
+
+        }, 0.2, this.targetPath.length - 1);
     }
 
     initMap() {
         let data = Config.LevelData[this.level];
+        this.examInfo = data;
         let mapText = data.map;
         let lineList = mapText.split("\n");
         for (let i = 0; i < lineList.length; i++) {
@@ -143,8 +166,11 @@ export default class MazeMapManager extends Component {
 
     initView() {
         //初始化ui界面相关
+        this.viewCtrl.init(this)
     }
-
+    public stopHeroRun() {
+        this.player.stop();
+    }
     public playHeroRun(direction: DirectionType) {
         if (this.isGameEnd) {
             return;
@@ -171,16 +197,29 @@ export default class MazeMapManager extends Component {
 
         //判断第几次显示 
         let { isError, errorPos, angle } = this.isErrorRoad(nextPos)
-        if (isError) {
+        if (isError && !this.isInProtect) {
+            console.log("isError-->", this.hasShowTipsCount)
+            if (this.hasShowTipsCount >= this.examInfo.tipCount) {
+                this.gameFail();
+                return;
+            }
+            //设置保护期
+            this.isInProtect = true;
+            this.scheduleOnce(() => {
+                this.isInProtect = false;
+            }, this.protectTime)
+
             errorPos = this.index2Pos(errorPos)
             console.log("showArrow", errorPos)
             let arrowPos = this.uiTrans.convertToWorldSpaceAR(v3(errorPos.x, errorPos.y))
             // 提示正确的箭头
             this.viewCtrl.showArrow(arrowPos, angle);
+            this.hasShowTipsCount++;
         }
 
         this.curPos = nextPos;
         this.heroNode.setPosition(v3(this.curPos.x, this.curPos.y, 0))
+        this.player.walk(direction);
 
         //转为世界坐标
         let worldPos = this.uiTrans.convertToWorldSpaceAR(v3(nextPos.x, nextPos.y))
@@ -188,7 +227,7 @@ export default class MazeMapManager extends Component {
 
         if (this.isRunTargetPoint(nextPos)) {
             //正确到达目的地
-            this.gameOver();
+            this.gameWin();
         }
     }
 
@@ -282,7 +321,7 @@ export default class MazeMapManager extends Component {
      * 获取游戏信息
      */
     public getGameInfo() {
-        return Config.LevelData[this.level]
+        return this.examInfo;
     }
 
     /**
@@ -338,10 +377,35 @@ export default class MazeMapManager extends Component {
         this.Camera.node.position = this.targetPos;
     }
 
+    private gameFail() {
+        this.hasRetryCount--
+        if (this.hasRetryCount <= 0) {
+            this.gameOver();
+        }
+        this.isGameEnd = true;
+        this.viewCtrl.hideArrow();
+        this.viewCtrl.showConfirmPanel({
+            time: 100,
+            desc: "再试一次",
+            onceBtn: true
+        }, () => {
+            this.resetCurrentLevel();
+        }, () => {
+        })
+    }
+
     /**
      * 游戏结束
      */
     private gameOver() {
+        //TODO: 记录当前的状态?  回顾? 数据上报?
+        this.viewCtrl.showGameOverPanel();
+    }
+
+    /**
+     * 游戏结束
+     */
+    private gameWin() {
         this.isGameEnd = true;
         this.viewCtrl.showConfirmPanel({
             time: 10,
@@ -365,8 +429,16 @@ export default class MazeMapManager extends Component {
         this.curPos = v2();
 
         this.mapData = [];
-
         this.isGameEnd = false;
+        this.isInProtect = false;
+        this.hasShowTipsCount = 0;
+        this.viewCtrl.timeLab
+    }
+
+    private resetCurrentLevel() {
+        this.resetView();
+        this.initMap();
+        this.initView();
 
     }
 

@@ -1,5 +1,6 @@
 import { _decorator, Component } from "cc";
 import MovieClip from "./MovieClip";
+import { DirectionType } from "../maze/ViewCtrl";
 
 const { ccclass, property } = _decorator;
 
@@ -39,7 +40,7 @@ export default class Charactor extends Component {
 
         if (value > 4) {
             this.movieClip.rowIndex = 4 - value % 4;
-            this.movieClip.node.setScale(1, -1, 1);
+            this.movieClip.node.setScale(-1, 1, 1);
         } else {
             this.movieClip.rowIndex = value;
             // this.movieClip.node.scaleX = 1;
@@ -96,51 +97,36 @@ export default class Charactor extends Component {
     update(dt) {
         if (this.moving) {
 
-            var speed: number = this.moveSpeed * dt;
-
-            // if (dx * dx + dy * dy > speed * speed) {
-            //     if (this._moveAngle == 0) {
-            //         this._moveAngle = Math.atan2(dy, dx);
-
-            //         var dire: number = Math.round((-this._moveAngle + Math.PI) / (Math.PI / 4));
-            //         this.direction = dire > 5 ? dire - 6 : dire + 2;
-            //     }
-
-            //     var xspeed: number = Math.cos(this._moveAngle) * speed;
-            //     var yspeed: number = Math.sin(this._moveAngle) * speed;
-
-            //     this.node.x += xspeed;
-            //     this.node.y += yspeed;
-
-            // } else {
-            //     this._moveAngle = 0;
-
-            //     if (this._nodeIndex == this._roadNodeArr.length - 1) {
-            //         this.node.x = nextNode.px;
-            //         this.node.y = nextNode.py
-
-            //         this.stop();
-            //     } else {
-
-            //     }
-            // }
         }
     }
 
     /**
-     * 根据路节点路径行走
-     * @param roadNodeArr 
+     * 行走
      */
-    public walkByRoad() {
+    public walk(dire: DirectionType) {
+        this._moveAngle = 0;
+
+        if (dire === DirectionType.LEFT) {
+            this.direction = 2;
+        } else if (dire === DirectionType.RIGHT) {
+            this.direction = 6;
+        } else if (dire === DirectionType.UP) {
+            this.direction = 4;
+        } else if (dire === DirectionType.DOWN) {
+            this.direction = 0;
+        }
+
         this.move();
     }
 
     public move() {
+        console.log("move")
         this.moving = true;
         this.state = CharactorState.run;
     }
 
     public stop() {
+        console.log("stop")
         this.moving = false;
         this.state = CharactorState.stand;
     }

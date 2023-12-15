@@ -109,20 +109,14 @@ export default class MovieClip extends Component {
 
     private _bitmapArr: SpriteFrame[][] = [];
 
-    // Use this for initialization
     onLoad() {
-
-        //this. m_clips = new SpriteFrame[this.row][this.col];
-        //Texture2D tex = Resources.Load<Texture2D>("Image/Avatar/" + m_sprite_name);
-
-        //this.begin = 0;
+        this.begin = 0;
 
         if (this.end == 0) {
             this.end = this.col;
         }
 
         this.rowIndex = this.clamp(this.rowIndex, 0, this.row - 1);
-
 
         this._pieceWidth = this.texture.width / this.col;
         this._pieceHeight = this.texture.height / this.row;
@@ -138,12 +132,13 @@ export default class MovieClip extends Component {
 
             for (var j = 0; j < this.col; j++) {
                 let spf = new SpriteFrame();
-                spf.rect = new Rect(j * this._pieceWidth, i * this._pieceHeight, this._pieceWidth, this._pieceHeight), false, v2(0, 0), new Size(this._pieceWidth, this._pieceHeight)
+                spf.texture = this.texture;
+                spf.rect = new Rect(j * this._pieceWidth, i * this._pieceHeight, this._pieceWidth, this._pieceHeight);
                 this._bitmapArr[i][j] = spf;
             }
         }
 
-        this.m_sprite.spriteFrame = this._bitmapArr[this.rowIndex][0];
+        this.m_sprite.spriteFrame = this._bitmapArr[0][0];
 
         let uiTrans = this.node.getComponent(UITransform)
         uiTrans.width = this._pieceWidth;
@@ -153,10 +148,10 @@ export default class MovieClip extends Component {
         this.timer = 0;
 
         this.running = this.autoPlayOnLoad;
+
     }
 
     update(dt) {
-
         if (!this.running)
             return;
 
@@ -164,7 +159,6 @@ export default class MovieClip extends Component {
             this.running = false;
             return;
         }
-
 
         this.timer -= dt;
 
@@ -211,20 +205,15 @@ export default class MovieClip extends Component {
                         }
                     }
                 }
-
             }
         }
-
     }
-
 
     private playAction() {
         this.rowIndex = this.clamp(this.rowIndex, 0, this.row - 1);
 
         this._playIndex = this._playIndex % (this.end - this.begin) + this.begin;
-
         this.m_sprite.spriteFrame = this._bitmapArr[this.rowIndex][this._playIndex];
-        //this.m_sprite.spriteFrame.setRect(this.rect);
 
         this._playIndex++;
     }

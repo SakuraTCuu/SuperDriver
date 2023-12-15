@@ -37,6 +37,7 @@ export class Dialog extends Component {
         this.MaskNode.on(NodeEventType.TOUCH_END, this.onTouchClose, this);
 
         this.confirmLab = this.ConfirmNode.getChildByName("Label").getComponent(Label);
+
     }
 
     onEnable(): void {
@@ -45,16 +46,17 @@ export class Dialog extends Component {
         pos.y += 1280;
         this.node.setPosition(pos)
 
+
         tween(this.node.position)
-            .to(0.5, v3(0, 0, 0), {
+            .to(0.3, v3(0, 0, 0), {
                 onUpdate: (target: Vec3, ratio: number) => {
                     this.node.position = target;
                 }
             }).call(() => {
                 this.MaskNode.active = true;
+                this.initView();
             })
             .start();
-        // tween(this.node.position).to(0.2,)
     }
 
     public init(info: DialogInfo, confirmCb: Function, cancelCb: Function) {
@@ -63,15 +65,18 @@ export class Dialog extends Component {
         this.confirmCallback = confirmCb;
         this.cancelCallback = cancelCb;
 
-        this.initView();
     }
 
     private initView() {
         if (this.info.onceBtn) {
             this.CancelNode.active = false;
             let pos = this.ConfirmNode.getPosition()
-            pos.x = 0 //设为中间位置
-            this.ConfirmNode.setPosition(pos);
+            pos.x = 0; //设为中间位置
+            this.ConfirmNode.setPosition(v3(0, pos.y));
+            console.log("pos", this.ConfirmNode.getPosition())
+            this.scheduleOnce(() => {
+                console.log("pos", this.ConfirmNode.getPosition())
+            }, 0.2)
         }
 
         if (this.info.desc.length >= 80) {
@@ -119,7 +124,6 @@ export class Dialog extends Component {
     }
 
     closeView() {
-        console.log("closeView")
         this.node.active = false;
         this.node.destroy()
     }
