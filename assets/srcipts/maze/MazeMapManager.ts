@@ -96,17 +96,41 @@ export default class MazeMapManager extends Component {
         this.initView();
 
         this.hasRetryCount = this.examInfo.retryCount;
+        this.showGuide();
     }
 
     /**
      * 展示引导
      */
     showGuide() {
+        this.Camera.orthoHeight = 800;
+        let len = this.targetPath.length - 1;
         let idx = 0;
         this.schedule(() => {
-            
+            let pos = this.targetPath[idx]
+            let x = pos[0] * this.tileWidth + this.tileWidth / 2
+            let y = -  pos[1] * this.tileHeight - this.tileHeight / 2
 
-        }, 0.2, this.targetPath.length - 1);
+            console.log("updatePat1h", pos)
+
+            let uiTrans = this.contentNode.getComponent(UITransform)
+            let worldPos = uiTrans.convertToWorldSpaceAR(v3(x, y))
+            this.historyPath.push(v2(x, y))
+            this.fogManager.updatePath(worldPos)
+
+            tween(this.heroNode.position).to(0.5, new Vec3(x, y, 0), {
+                onUpdate: (target: Vec3, ratio: number) => {
+                    this.heroNode.position = target;
+                }
+            }).start()
+
+            console.log("idx", len, idx)
+            if (idx === len) {
+                tween(this.Camera).to(3, { orthoHeight: 640 }).start();
+                this.resetCurrentLevel();
+            }
+            idx++;
+        }, 0.5, len)
     }
 
     initMap() {
@@ -439,7 +463,6 @@ export default class MazeMapManager extends Component {
         this.resetView();
         this.initMap();
         this.initView();
-
     }
 
     //展示下一关

@@ -136,6 +136,7 @@ export default class ViewCtrl extends Component {
         //     this.curDirection = DirectionType.DOWN;
         // }
         this.isRunning = false;
+        this.stopRunning();
     }
 
     //点击图标, 开始移动
