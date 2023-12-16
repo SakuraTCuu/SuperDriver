@@ -46,6 +46,8 @@ export default class ViewCtrl extends Component {
 
     private gameOverPanel: Node = null;
 
+    private score: number = 0;
+
     onLoad() {
         let handle = this.uiRoot.getChildByName("handle")
         this.leftBtn = handle.getChildByName("left")
@@ -59,21 +61,42 @@ export default class ViewCtrl extends Component {
         input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
         input.on(Input.EventType.KEY_UP, this.onKeyUp, this);
 
+        this.timeLab.node.on("timeOut", this.onTimeOut, this);
+
         this.addTouchEvent(this.leftBtn)
         this.addTouchEvent(this.rightBtn)
         this.addTouchEvent(this.upBtn)
         this.addTouchEvent(this.downBtn)
     }
 
+    hideUIRoot() {
+        this.uiRoot.active = false;
+    }
+
+    showUIRoot() {
+        this.uiRoot.active = true;
+    }
+
     init(ref: MazeMapManager) {
         this.MazeManager = ref;
 
         this.initTimeLab();
+        this.updateScore(0);
+    }
+
+    updateScore(score: number) {
+        this.score += score;
+
+        this.scoreLab.string = "得分:" + this.score;
     }
 
     initTimeLab() {
         let info = this.MazeManager.getGameInfo()
         this.timeLab.initTime(info.time);
+    }
+
+    onTimeOut() {
+        this.MazeManager.showTimeOut();
     }
 
     update(dt: number): void {

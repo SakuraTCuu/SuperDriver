@@ -54,6 +54,7 @@ export default class TimeLab extends Component {
         this.reset();
 
         console.log("事件出去")
+        this.node.emit("timeOut")
         //send 事件出去
         //dispatch
     }

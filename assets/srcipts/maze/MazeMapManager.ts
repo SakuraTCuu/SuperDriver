@@ -111,6 +111,7 @@ export default class MazeMapManager extends Component {
      * 展示引导
      */
     showGuide() {
+        this.viewCtrl.hideUIRoot();
         this.isInGuide = true;
         this.Camera.orthoHeight = 900;
         let len = this.targetPath.length;
@@ -155,7 +156,8 @@ export default class MazeMapManager extends Component {
                         // console.log("pos:", pos)
                         // this.setViewToPoint(pos.x, pos.y);
                         this.isInGuide = false;
-
+                        this.viewCtrl.showUIRoot();
+                        this.viewCtrl.initTimeLab()
                     }).start();
                 }
                 idx++;
@@ -291,6 +293,7 @@ export default class MazeMapManager extends Component {
     private index2Pos(indexArr: Vec2) {
         return v2(indexArr.x * this.tileWidth + this.tileWidth / 2, - indexArr.y * this.tileHeight - this.tileHeight / 2);
     }
+
     /**
      * 坐标转索引
      */
@@ -414,7 +417,7 @@ export default class MazeMapManager extends Component {
         cameraPos.lerp(this.targetPos, dt * 2.0);
         this.Camera.node.setPosition(this.targetPos);
         this.UIRoot.setPosition(this.targetPos);
-        console.log("this.followPlayer", this.targetPos)
+        // console.log("this.followPlayer", this.targetPos)
     }
 
     /**
@@ -470,6 +473,7 @@ export default class MazeMapManager extends Component {
      */
     private gameWin() {
         this.isGameEnd = true;
+        this.viewCtrl.updateScore(1);
         this.viewCtrl.showConfirmPanel({
             time: 10,
             desc: "恭喜通关,继续下一关?"
@@ -478,6 +482,13 @@ export default class MazeMapManager extends Component {
         }, () => {
             console.log("取消")
         })
+    }
+
+    /**
+     * 超时
+     */
+    public showTimeOut() {
+        this.gameFail();
     }
 
     private resetView() {
@@ -501,7 +512,7 @@ export default class MazeMapManager extends Component {
     private resetCurrentLevel() {
         this.resetView();
         this.initMap();
-        this.initView();
+        this.viewCtrl.initTimeLab();
     }
 
     //展示下一关
@@ -509,7 +520,7 @@ export default class MazeMapManager extends Component {
         this.resetView();
         this.level = this.level + 1;
         this.initMap();
-        this.initView();
+        this.viewCtrl.initTimeLab();
     }
 }
 
