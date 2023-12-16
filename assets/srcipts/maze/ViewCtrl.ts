@@ -197,7 +197,8 @@ export default class ViewCtrl extends Component {
             this.isShowArrow = false;
         }, this.configData.time)
 
-        this.node.addChild(arrowItem)
+        // this.node.addChild(arrowItem)
+        this.uiRoot.parent.addChild(arrowItem)
         arrowItem.setWorldPosition(pos);
         return true;
     }

@@ -87,6 +87,7 @@ export default class MazeMapManager extends Component {
     private isInProtect = false; //设置保护期 3s后,保护期失效
     private protectTime: number = 3;
     private isInGuide: boolean = true;
+    private offsetPos: Vec3 = v3();
 
     start(): void {
         this.uiTrans = this.contentNode.getComponent(UITransform);
@@ -155,6 +156,11 @@ export default class MazeMapManager extends Component {
                         // let pos = this.heroNode.getPosition()
                         // console.log("pos:", pos)
                         // this.setViewToPoint(pos.x, pos.y);
+                        //计算偏移
+                        this.offsetPos = this.heroNode.worldPosition.clone().subtract(this.Camera.node.worldPosition);
+                        console.log(this.heroNode.worldPosition)
+                        console.log(this.Camera.node.worldPosition)
+                        console.log("offsetPos", this.offsetPos)
                         this.isInGuide = false;
                         this.viewCtrl.showUIRoot();
                         this.viewCtrl.initTimeLab()
@@ -195,6 +201,13 @@ export default class MazeMapManager extends Component {
                 }
                 itemCtrl.init(tile)
                 arr.push(tile);
+
+                if (data.start[0] === j && data.start[1] === i) {
+                    itemCtrl.setStart();
+                }
+                if (data.end[0] === j && data.end[1] === i) {
+                    itemCtrl.setEnd();
+                }
             }
             this.mapData.push(arr);
         }
@@ -386,6 +399,7 @@ export default class MazeMapManager extends Component {
     * @param dt
     */
     public followPlayer(dt: number) {
+
         //玩家当前的位置
         let pos = this.heroNode.position.clone();
         let worldPos = this.uiTrans.convertToWorldSpaceAR(pos)
@@ -399,25 +413,39 @@ export default class MazeMapManager extends Component {
         // pos.z = 1;
         // this.targetPos = pos;
 
+        let isMove = false;
         //摄像头不能超出范围
         if (this.targetPos.x > this.mapWidth / 2 - this.winSize.width / 2) {
             this.targetPos.x = this.mapWidth / 2 - this.winSize.width / 2;
+            isMove = true;
         } else if (this.targetPos.x < this.winSize.width / 2 - this.mapWidth / 2) {
             this.targetPos.x = this.winSize.width / 2 - this.mapWidth / 2;
+            isMove = true;
         }
 
         if (this.targetPos.y > this.mapHeight / 2 - this.winSize.height / 2) {
             this.targetPos.y = this.mapHeight / 2 - this.winSize.height / 2;
+            isMove = true;
         } else if (this.targetPos.y < this.winSize.height / 2 - this.mapHeight / 2) {
             this.targetPos.y = this.winSize.height / 2 - this.mapHeight / 2;
+            isMove = true;
         }
+
+        //超出范围后才移动
+        // if (!isMove) {
+        //     return;
+        // }
 
         //摄像机平滑跟随
         let cameraPos = this.Camera.node.position;
+        // console.log("cameraPos", cameraPos.x, cameraPos.y)
         cameraPos.lerp(this.targetPos, dt * 2.0);
         this.Camera.node.setPosition(this.targetPos);
         this.UIRoot.setPosition(this.targetPos);
-        // console.log("this.followPlayer", this.targetPos)
+
+        // let finalPos = this.targetPos.clone().subtract(this.offsetPos)
+        // finalPos.z = 1;
+        // this.Camera.node.setPosition(finalPos);
     }
 
     /**
@@ -451,7 +479,7 @@ export default class MazeMapManager extends Component {
         this.isGameEnd = true;
         this.viewCtrl.hideArrow();
         this.viewCtrl.showConfirmPanel({
-            time: 100,
+            time: 10,
             desc: "再试一次",
             onceBtn: true
         }, () => {
