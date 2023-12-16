@@ -80,7 +80,6 @@ export default class Charactor extends Component {
         }
     }
 
-
     public moving: boolean = false;
 
     public moveSpeed: number = 200;
@@ -120,13 +119,11 @@ export default class Charactor extends Component {
     }
 
     public move() {
-        console.log("move")
         this.moving = true;
         this.state = CharactorState.run;
     }
 
     public stop() {
-        console.log("stop")
         this.moving = false;
         this.state = CharactorState.stand;
     }

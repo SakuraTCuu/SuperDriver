@@ -17,6 +17,8 @@ export class FogOfWar extends Component {
 
     private lineWidth: number = 80;
 
+    private prePos: Vec3 = v3();
+
     onLoad() {
         this.graphics = this.Mask.getComponent(Graphics);
         this.uiTrans = this.Mask.getComponent(UITransform)
@@ -28,9 +30,6 @@ export class FogOfWar extends Component {
 
         this.graphics.lineWidth = this.lineWidth;
         this.graphics.strokeColor = Color.GRAY;
-        this.node.on(Node.EventType.TOUCH_START, this.onTouchStart, this)
-        this.node.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
-        this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this)
     }
 
     /**
@@ -68,36 +67,7 @@ export class FogOfWar extends Component {
         // }
     }
 
-    prePos: Vec3
-    onTouchStart(event: EventTouch) {
-        let pos = event.getUILocation()
-        let localPos = this.uiTrans.convertToNodeSpaceAR(v3(pos.x, pos.y))
-        this.prePos = localPos;
-    }
-
-    onTouchMove(event: EventTouch) {
-        let pos = event.getUILocation()
-        let localPos = this.uiTrans.convertToNodeSpaceAR(v3(pos.x, pos.y))
-
-        this.graphics.moveTo(this.prePos.x, this.prePos.y)
-        this.graphics.lineTo(localPos.x, localPos.y)
-
-        this.graphics.stroke()
-        this.prePos = localPos;
-    }
-
-    onTouchEnd(event: EventTouch) {
-        let pos = event.getUILocation()
-        let localPos = this.uiTrans.convertToNodeSpaceAR(v3(pos.x, pos.y))
-
-        this.graphics.moveTo(this.prePos.x, this.prePos.y)
-        this.graphics.lineTo(localPos.x, localPos.y)
-
-        this.graphics.stroke()
-    }
-
     public updatePath(pos: Vec3) {
-        console.log("updatePath", pos)
         this.uiTrans = this.Mask.node.getComponent(UITransform)
         let localPos = this.uiTrans.convertToNodeSpaceAR(v3(pos.x, pos.y))
         this.historyPath.push(localPos)
